@@ -1,0 +1,3 @@
+{% extends 'base.html' %}{% from 'components.html' import icon,assignment_form with context %}
+{% block heading %}Edit assignment{% endblock %}{% block description %}Update the teaching resources and weekly periods for this class.{% endblock %}
+{% block content %}<section class="panel"><div class="panel-heading"><div class="section-icon">{{icon('assignments')}}</div><h2>Assignment #{{record.assignment_id}}</h2></div>{{assignment_form(courses,classes,subjects,teachers,record,true)}}</section>{% endblock %}

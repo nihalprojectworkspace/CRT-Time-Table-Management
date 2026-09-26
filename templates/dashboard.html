@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% from 'components.html' import icon,nullable with context %}
+{% block heading %}Workspace overview{% endblock %}{% block description %}Your courses, spaces and teaching resources at a glance.{% endblock %}
+{% block content %}
+<div class="stat-grid">{% for entity in ['courses','classrooms','teachers','classes','subjects'] %}<a class="stat-card" href="{{url_for('manage',entity=entity)}}"><span class="stat-top">{{entities[entity].title}}{{icon(entity)}}</span><strong>{{counts[entity]}}</strong><span class="stat-footer">View {{entity}} {{icon('arrow',14)}}</span></a>{% endfor %}</div>
+{% if missing %}<div class="alert warning">Classes awaiting assignments: {% for c in missing %}{{c.class_id}}{% if not loop.last %}, {% endif %}{% endfor %}.</div>{% endif %}
+<div class="overview-grid">{% for entity in ['classrooms','teachers','subjects','classes','courses'] %}{% set meta=entities[entity] %}
+<section class="panel table-panel"><div class="panel-heading spread"><div class="heading-with-icon"><div class="section-icon">{{icon(entity)}}</div><h2>{{meta.title}} <span class="count-badge">{{counts[entity]}}</span></h2></div><a class="button ghost small" href="{{url_for('manage',entity=entity)}}">View all {{icon('arrow',15)}}</a></div>
+<div class="table-scroll"><table><thead><tr>{% for key,label,kind in meta.fields[:3] %}<th>{{label}}</th>{% endfor %}</tr></thead><tbody>{% for record in collections[entity] %}<tr>{% for key,label,kind in meta.fields[:3] %}<td>{{nullable(course_names.get(record[key])) if key=='course_id' else nullable(record[key])}}</td>{% endfor %}</tr>{% else %}<tr><td colspan="3" class="empty-state"><strong>No {{entity}} yet</strong><span>Add your first record to get started.</span></td></tr>{% endfor %}</tbody></table></div></section>{% endfor %}</div>
+{% endblock %}

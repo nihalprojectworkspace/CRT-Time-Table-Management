@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% from 'components.html' import icon,token with context %}
+{% block heading %}Schedule Configuration{% endblock %}{% block description %}Set the shape of your teaching week, including all daily breaks.{% endblock %}
+{% block content %}<form method="post">{{token()}}
+<section class="panel"><div class="panel-heading"><div class="section-icon">{{icon('calendar')}}</div><div><h2>Teaching week</h2><p>Changes take effect when you generate a new timetable.</p></div></div>
+<div class="form-grid"><label class="span-two">Working days<input name="days" value="{{values.days}}" required><span class="field-hint">Full weekday names, separated by commas.</span></label>
+<label>Periods per day<input type="number" min="1" max="24" name="periods_per_day" value="{{values.periods_per_day}}" required></label>
+<label>Day start time<input type="time" name="start_time" value="{{values.start_time}}" required></label>
+<label>Period duration (minutes)<input type="number" min="1" max="240" name="duration" value="{{values.duration}}" required></label>
+<label>Maximum consecutive periods<input type="number" min="1" max="24" name="max_consecutive" value="{{values.max_consecutive}}" required><span class="field-hint">For the same subject within a class.</span></label></div></section>
+<section class="panel"><div class="panel-heading spread"><div><h2>Daily breaks</h2><p>Add lunch, morning or afternoon breaks. Breaks cannot overlap.</p></div><button type="button" class="button secondary" data-add-break>{{icon('plus')}} Add break</button></div>
+<input type="hidden" name="breaks_form" value="1"><div class="break-list" data-break-list>
+{% for break in breaks %}<div class="break-row"><label>Break name<input name="break_name" value="{{break.name}}" maxlength="60" required></label><label>Start time<input type="time" name="break_start" value="{{break.start}}" required></label><label>End time<input type="time" name="break_end" value="{{break.end}}" required></label><button type="button" class="button danger" data-remove-break aria-label="Remove break">{{icon('delete')}} Remove</button></div>{% endfor %}
+</div><p class="field-hint">You can remove all breaks for an uninterrupted teaching day. Breaks apply to every working day.</p></section>
+<div class="page-actions"><button class="button primary">{{icon('check')}} Save settings</button></div>
+</form>
+<template id="break-template"><div class="break-row"><label>Break name<input name="break_name" placeholder="e.g. Morning break" maxlength="60" required></label><label>Start time<input type="time" name="break_start" required></label><label>End time<input type="time" name="break_end" required></label><button type="button" class="button danger" data-remove-break aria-label="Remove break">{{icon('delete')}} Remove</button></div></template>
+{% endblock %}

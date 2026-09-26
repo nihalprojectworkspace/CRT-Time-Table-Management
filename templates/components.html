@@ -1,0 +1,44 @@
+{% macro icon(name, size=18) -%}
+<svg width="{{size}}" height="{{size}}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+{% if name=='dashboard' %}<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+{% elif name in ['timetable','calendar'] %}<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18m-13 4h2m4 0h2m-8 3h2"/>
+{% elif name=='teachers' %}<circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3m1-16a3 3 0 0 1 0 6m3 10v-3a5 5 0 0 0-3-4"/>
+{% elif name=='classrooms' %}<path d="M3 21h18M5 21V4h14v17M9 21v-5h6v5M9 8h1m4 0h1m-6 4h1m4 0h1"/>
+{% elif name=='courses' %}<path d="m2 9 10-5 10 5-10 5-10-5Zm4 2v6l6 3 6-3v-6m4-2v7"/>
+{% elif name=='subjects' %}<path d="M12 6c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Zm0 0v15"/>
+{% elif name=='classes' %}<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4M7 8h10m-10 4h6"/>
+{% elif name=='assignments' %}<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zm0 8h6m-6 4h6"/>
+{% elif name=='settings' %}<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="currentColor"/><circle cx="15" cy="17" r="3" fill="currentColor"/>
+{% elif name=='edit' %}<path d="m15 4 5 5M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14v6Z"/>
+{% elif name=='delete' %}<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>
+{% elif name=='plus' %}<path d="M12 5v14M5 12h14"/>
+{% elif name=='arrow' %}<path d="M5 12h14m-5-5 5 5-5 5"/>
+{% elif name=='print' %}<path d="M6 9V3h12v6M6 17H3V9h18v8h-3M6 14h12v7H6z"/>
+{% elif name=='menu' %}<path d="M4 6h16M4 12h16M4 18h16"/>
+{% else %}<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>{% endif %}
+</svg>
+{%- endmacro %}
+{% macro token() %}<input type="hidden" name="csrf_token" value="{{session.csrf_token}}">{% endmacro %}
+{% macro nullable(value) %}{% if value is none %}<span class="null-badge" title="A referenced record was removed or is not assigned. Edit this record to repair it.">NULL · needs repair</span>{% else %}{{value}}{% endif %}{% endmacro %}
+{% macro record_fields(meta, choices, record={}, editing=false) %}
+<div class="form-grid">{% for key,label,kind in meta.fields %}
+<label>{{label}} <span class="required">*</span>
+{% if kind=='select' %}
+<select name="{{key}}" required><option value="">Select {{label|lower}}</option>{% for value,text in choices[key] %}<option value="{{value}}" {% if record.get(key)==value %}selected{% endif %}>{{text}}</option>{% endfor %}</select>
+{% if not choices[key] %}<span class="field-hint">Add {% if key=='required_room_type' %}classrooms{% else %}courses{% endif %} first to populate this list.</span>{% endif %}
+{% else %}<input type="{{kind}}" name="{{key}}" value="{{record.get(key,'')}}" {% if editing and key==meta.pk %}readonly{% endif %} {% if kind=='number' %}min="1" max="100000"{% endif %} maxlength="200" required>{% endif %}
+</label>{% endfor %}</div>
+{% endmacro %}
+{% macro assignment_form(courses, classes, subjects, teachers, record={}, editing=false) %}
+<form method="post" action="{{url_for('assignments')}}" data-assignment-form>
+{{token()}}{% if editing %}<input type="hidden" name="assignment_id" value="{{record.get('assignment_id','')}}">{% endif %}
+<div class="form-grid">
+<label>Course <span class="required">*</span><select name="course_id" required data-course><option value="">Select a course</option>{% for x in courses %}<option value="{{x.course_id}}" data-department="{{x.department}}" {% if record.get('course_id')==x.course_id %}selected{% endif %}>{{x.course_name}}</option>{% endfor %}</select><span class="field-hint">Filters classes, subjects and department teachers.</span></label>
+<label>Class <span class="required">*</span><select name="class_id" required data-dependent><option value="">Select a class</option>{% for x in classes %}<option value="{{x.class_id}}" data-course="{{x.course_id or ''}}" {% if record.get('class_id')==x.class_id %}selected{% endif %}>{{x.class_id}} · Sem {{x.semester}} · {{x.section}}</option>{% endfor %}</select></label>
+<label>Subject <span class="required">*</span><select name="subject_id" required data-dependent><option value="">Select a subject</option>{% for x in subjects %}<option value="{{x.subject_id}}" data-course="{{x.course_id or ''}}" {% if record.get('subject_id')==x.subject_id %}selected{% endif %}>{{x.subject_name}}</option>{% endfor %}</select></label>
+<label>Teacher <span class="required">*</span><select name="teacher_id" required data-dependent><option value="">Select a teacher</option>{% for x in teachers %}<option value="{{x.teacher_id}}" data-department="{{x.department}}" {% if record.get('teacher_id')==x.teacher_id %}selected{% endif %}>{{x.name}}</option>{% endfor %}</select></label>
+<label>Periods per week <span class="required">*</span><input type="number" min="1" max="168" name="weekly_hours" value="{{record.get('weekly_hours','')}}" required></label>
+</div><p class="field-hint" data-assignment-hint aria-live="polite">Choose a course to see its available teaching resources.</p>
+<div class="form-actions">{% if editing %}<a class="button secondary" href="{{url_for('assignments')}}">Cancel</a>{% endif %}<button class="button primary">{{icon('check')}} {{'Save changes' if editing else 'Add assignment'}}</button></div>
+</form>
+{% endmacro %}

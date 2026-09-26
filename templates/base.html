@@ -1,0 +1,29 @@
+{% from 'components.html' import icon %}
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}Timetable Studio{% endblock %}</title><link rel="stylesheet" href="{{url_for('static',filename='style.css')}}"><script defer src="{{url_for('static',filename='app.js')}}"></script></head>
+<body>
+<div class="sidebar-backdrop" data-close-sidebar></div>
+<aside class="sidebar" id="sidebar">
+<a class="brand" href="{{url_for('dashboard')}}"><span class="brand-mark">{{icon('calendar',23)}}</span><span>Timetable Studio<small>Academic workspace</small></span></a>
+<nav aria-label="Main navigation">
+{% for group,items in [('',[('dashboard','Overview','dashboard')]),('ACADEMIC DATA',[('courses','Courses','manage'),('classrooms','Classrooms','manage'),('teachers','Teachers','manage'),('classes','Classes','manage'),('subjects','Subjects','manage'),('assignments','Assignments','assignments'),('timetable','Timetable','timetable')]),('',[('settings','Schedule Configuration','settings_page')])] %}
+<div class="nav-group">{% if group %}<p class="nav-caption">{{group}}</p>{% endif %}
+{% for key,label,endpoint in items %}{% set href=url_for(endpoint,entity=key) if endpoint=='manage' else url_for(endpoint) %}{% set active=request.path==href or (href!='/' and request.path.startswith(href+'/')) %}
+<a href="{{href}}" class="nav-link {% if active %}active{% endif %}" {% if active %}aria-current="page"{% endif %}>{{icon(key)}}<span>{{label}}</span>{% if active %}<span class="nav-dot"></span>{% endif %}</a>
+{% endfor %}</div>{% endfor %}
+</nav>
+<div class="sidebar-footer"><span class="avatar">A</span><div>Administrator<small>Department workspace</small></div></div>
+</aside>
+<main>
+<div class="topbar"><div class="topbar-left"><button class="button icon-button mobile-menu" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation">{{icon('menu')}}</button><span>Workspace <span class="crumb">/</span> Academic planning</span></div><span class="workspace-badge"><span class="status-dot"></span> Local workspace</span></div>
+<div class="page"><header class="page-header"><div><p class="eyebrow">TIMETABLE STUDIO</p><h1>{% block heading %}{% endblock %}</h1><p class="page-description">{% block description %}{% endblock %}</p></div>{% block header_actions %}{% endblock %}</header>
+{% for category,message in get_flashed_messages(with_categories=true) %}
+{% if category=='dependencies' %}
+<div role="alert" class="alert error dependency-notice"><strong>Child records kept — some values were set to NULL.</strong><p>The following tables were affected. Edit the missing references to complete these records again.</p>
+<div class="table-scroll"><table><thead><tr><th>Affected table</th><th>Field set to NULL</th><th>Records affected</th><th>Next step</th></tr></thead><tbody>
+{% for change in message %}<tr><td>{{change.table}}</td><td><code>{{change.field}}</code></td><td>{{change.count}}</td><td><a class="button secondary small" href="{{change.url}}">{{'Review timetable' if change.entity=='timetable' else 'Repair records'}}</a></td></tr>{% endfor %}
+</tbody></table></div><p>Saved timetables are marked outdated. Repair the source records. If saved timetable periods have NULL references, delete the damaged timetable before generating again.</p></div>
+{% else %}<div role="status" class="alert {{category}}">{{message}}</div>{% endif %}{% endfor %}
+{% block content %}{% endblock %}
+<footer class="page-footer">Timetable Studio <span>Organized teaching. Clear schedules.</span></footer></div>
+</main></body></html>

@@ -1,0 +1,40 @@
+.venv/
+.browsers/
+artifacts/
+__pycache__/
+*.pyc
+database/*.db
+database/*.db-*
+database/*.bak
+
+# Local configuration and tooling
+.env
+.env.*
+!.env.example
+.agents/
+.codex/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Python caches, packaging and test output
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+*.log
+*.zip
+
+# Keep local data and generated exports out of GitHub
+database/*.sqlite
+database/*.sqlite3
+database/*.sqlite3-*
+
+# README is intentionally excluded for now
+[Rr][Ee][Aa][Dd][Mm][Ee].[Mm][Dd]

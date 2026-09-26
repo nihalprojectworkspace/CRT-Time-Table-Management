@@ -1,0 +1,4 @@
+{% extends 'base.html' %}{% from 'components.html' import icon,token,record_fields with context %}
+{% block heading %}Edit {{'class' if entity=='classes' else meta.title[:-1]|lower}}{% endblock %}
+{% block description %}Update the record details. The identifier stays the same to preserve its references.{% endblock %}
+{% block content %}<section class="panel"><div class="panel-heading"><div class="section-icon">{{icon(entity)}}</div><h2>{{record[meta.pk]}}</h2></div><form method="post">{{token()}}{{record_fields(meta,choices,record,true)}}<div class="form-actions"><a class="button secondary" href="{{url_for('manage',entity=entity)}}">Cancel</a><button class="button primary">{{icon('check')}} Save changes</button></div></form></section>{% endblock %}
