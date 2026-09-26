@@ -30,6 +30,7 @@ dist/
 *.egg-info/
 *.log
 *.zip
+*.md
 
 # Keep local data and generated exports out of GitHub
 database/*.sqlite
