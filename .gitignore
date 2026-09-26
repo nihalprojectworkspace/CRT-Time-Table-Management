@@ -30,12 +30,8 @@ dist/
 *.egg-info/
 *.log
 *.zip
-*.md
 
-# Keep local data and generated exports out of GitHub
 database/*.sqlite
 database/*.sqlite3
 database/*.sqlite3-*
 
-# README is intentionally excluded for now
-[Rr][Ee][Aa][Dd][Mm][Ee].[Mm][Dd]
